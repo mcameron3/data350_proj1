@@ -1,0 +1,180 @@
+---
+title: "Project 1"
+author: "Data 350"
+date: "Due date: March 23 2025 at midnight (EST)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Overview
+
+In this project, you will produce an exploratory data analysis (EDA) report for the `NHANES::NHANESraw` dataset. **Warning:** You are not allowed to use the `NHANES::NHANES` dataset. 
+
+```{r}
+install.packages("NHANES")
+library(NHANES)
+library(ggplot2)
+library(dplyr)
+NHANESraw
+```
+```{r}
+# First baby vs first marriage
+df <- NHANESraw
+df |> 
+  select(Age1stBaby, AgeFirstMarij) |> 
+  ggplot() + 
+  geom_histogram(aes(x=Age1stBaby, y=after_stat(density)), bins=25, na.rm = TRUE, fill="lightblue", color="black", alpha=0.5) + 
+  geom_density(aes(x=Age1stBaby), na.rm=TRUE, color="lightyellow", alpha=0.5) + 
+  geom_histogram(aes(x=AgeFirstMarij, y=after_stat(density)), bins=25, na.rm = TRUE, fill="lightgreen", color="black", alpha=0.5) + 
+  geom_density(aes(x=AgeFirstMarij),na.rm=TRUE, color="lightpink", alpha=0.5)
+```
+## Instruction
+
+
+1. Define a set of questions/tasks that will guide your exploration. 
+
+1. Is there an age of peak health? 
+```{r}
+df <- NHANESraw
+
+# make AgeDecade var
+df <- df |>
+  mutate(AgeDecade = floor(Age / 10) * 10)
+
+df |>
+  select(HealthGen, Gender, AgeDecade) |>
+  filter(AgeDecade > 0, !is.na(HealthGen)) |>
+  ggplot(aes(x = HealthGen, y = after_stat(prop), group = 1)) + 
+  geom_bar() +
+  facet_grid(AgeDecade ~ Gender) + 
+  labs(
+    x="Proportion of Population", 
+    y="Self-Reported General Health", 
+    title="Proportion of Self-Reported Physical Health by Age Decade and Gender"
+  )
+```
+
+
+```{r}
+df |>
+  filter(!is.na(HealthGen)) |>
+  group_by(Age) |>
+  summarise(
+    prop_good = mean(HealthGen %in% c("Good", "Vgood", "Excellent"))
+  ) |>
+  ggplot(aes(x = Age, y = prop_good)) +
+  geom_line(color = "blue", linewidth = 1) +
+  scale_y_continuous(limits = c(0, 1)) +
+  #scale_x_log10() +
+  labs(
+    x = "Age (years)",
+    y = "Proportion with Good/Vgood/Excellent Health",
+    title = "Proportion of People Reporting Good, Very Good, or Excellent Health by Age"
+  ) +
+  theme_minimal()
+```
+```{r}
+
+```
+
+2. What is the association between physical activity and markers of health? 
+
+
+3. How does pregnancy affect sleep?
+i) If a person is pregnant now, how is their sleep different from those who are 
+not pregnant now?
+```{r}
+df <- NHANESraw
+
+df |> 
+  select(PregnantNow, SleepHrsNight, Gender) |> 
+  filter(PregnantNow %in% c("Yes", "No"), Gender == "female") |> 
+  ggplot(aes(x=PregnantNow)) + 
+  geom_violin(aes(y=SleepHrsNight)) + 
+  labs(
+    x="Pregnant", 
+    y="Reported Sleep Per Night (Hours)", 
+    title="Sleep Quality in Pregnant and Non Pregnant People"
+  ) + 
+  theme_minimal()
+```
+ii) Are a larger amount of pregnancies total associated with worse sleep? 
+```{r}
+df |> 
+  select(nPregnancies, Gender, SleepHrsNight,SleepTrouble) |> 
+  filter(Gender == "female", nPregnancies <= 20) |> 
+  ggplot(aes(x=nPregnancies, y=SleepHrsNight, color=SleepTrouble)) + 
+  geom_jitter(width = 0.4, height = 0.4, alpha = 0.4) + 
+  scale_x_continuous(breaks = seq(0, 20, by = 2)) + 
+  geom_smooth(method = "loess", se=FALSE) + 
+  labs(
+    x="Number of Pregnancies Had", 
+    y="Sleep Per Night (Hours)", 
+    title="Sleep Quality vs. Number Pregnancies", 
+    color="Sleep Trouble Reported"
+  ) + 
+  theme_minimal()
+
+  
+```
+2. Create 6-10 figures from the data exploring your questions.
+  
+    - at least one figure must be faceted using `facet_`
+    - each counted figure must be multivariate and show at least two of the plotting techniques we learned in class
+    - all figures must be well-labeled
+    - no more than two figures of the same type (counted using `geom_`, if you include $>8$ figures, you are allowed to have more than 2 of a given type)
+
+3. Write a report with your figures included. 
+
+## Submission
+
+- A `zip` file consisting of one `RMD` and one `HTML` files. The name of your `zip` file should be a two-digit number corresponding to your group. 
+- The knitted output of the `RMD` file must be identical to the `HTML` file.
+- The `HTML` file should only consist of words and plots, i.e., no code. To do this, you can set `echo = F` in the global options.  
+
+
+## Grading structure
+
+The precise rubric will be published via ELMS. You will be graded on:
+
+  1. Basic completion according to the instruction
+  2. Depths of your guiding questions
+  3. Suitable plot types
+  4. Meaningful statistical analysis/transforms to support your questions and provide additional insights
+  5. Statistical rigor, including but not restricted to: expressing uncertainty, explanation why/how the methods work, reproducibility of the experiments
+  
+## Group Structure 
+
+The following applies to a standard 3-person group. I will make suitable adjustment for the non-standard group. 
+
+
+
+| Role | Responsibilities |
+|------|----------------|
+| **Project Leader/Manager** | - Guides the overall direction of the EDA project <br> - Organizes workflow, deadlines, communication (with team members and the instructor), and file submission  |
+|||
+| **Data/Stat Lead** | - Performs data cleaning, transformations, and statistical analysis<br>- Provides technical support to others |
+|||
+| **Visualization/Communication Lead** | - Designs clear, well-labeled, and statistically informed figures<br>- Standardizes figures/texts and integrate them into report<br>|
+|||
+| **All Members** | - Each member is responsible for at $\geq 2$ plots, and must draft texts for their own plots <br> - Each member is responsible for writing a post-production report |
+
+> **Note:** Roles have some degree of flexiblility; members can overlap responsibilities. Every member must contribute technically, write text, and support quality control.
+
+
+## Post-production
+
+Each member is required to submit a report including an individual reflection and a group member evaluation. Both will be available only to the instructor/grader. Each report must include the following key information:
+
+- Your roles and your plots (1 paragraph)
+- Summary of your work (1 paragraph)
+- Evaluation of each of your team member's work, i.e., what aspects are done well and what could be improved for each member. (1 paragraph for each member)
+
+
+
+
+
