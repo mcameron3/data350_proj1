@@ -1,6 +1,6 @@
 ---
 title: "Project 1"
-author: "Data 350"
+author: "Project 1 Group -- Michelle, Valentina, Ian"
 date: "Due date: March 23 2025 at midnight (EST)"
 output: html_document
 ---
@@ -21,23 +21,13 @@ library(ggplot2)
 library(dplyr)
 NHANESraw
 ```
-```{r}
-# First baby vs first marriage
-df <- NHANESraw
-df |> 
-  select(Age1stBaby, AgeFirstMarij) |> 
-  ggplot() + 
-  geom_histogram(aes(x=Age1stBaby, y=after_stat(density)), bins=25, na.rm = TRUE, fill="lightblue", color="black", alpha=0.5) + 
-  geom_density(aes(x=Age1stBaby), na.rm=TRUE, color="lightyellow", alpha=0.5) + 
-  geom_histogram(aes(x=AgeFirstMarij, y=after_stat(density)), bins=25, na.rm = TRUE, fill="lightgreen", color="black", alpha=0.5) + 
-  geom_density(aes(x=AgeFirstMarij),na.rm=TRUE, color="lightpink", alpha=0.5)
-```
+
 ## Instruction
 
 
 1. Define a set of questions/tasks that will guide your exploration. 
 
-1. Is there an age of peak health? 
+1. Is there an age of peak perceived health? 
 ```{r}
 df <- NHANESraw
 
@@ -77,14 +67,8 @@ df |>
   ) +
   theme_minimal()
 ```
-```{r}
 
-```
-
-2. What is the association between physical activity and markers of health? 
-
-
-3. How does pregnancy affect sleep?
+2. How does pregnancy affect sleep?
 i) If a person is pregnant now, how is their sleep different from those who are 
 not pregnant now?
 ```{r}
@@ -119,7 +103,51 @@ df |>
   ) + 
   theme_minimal()
 
-  
+```
+### How is blood pressure associated with age?
+```{r}
+df_summary <- df |>
+  group_by(Age) |>
+  summarise(
+    med_sys = median(BPSysAve, na.rm = TRUE),
+    med_dia = median(BPDiaAve, na.rm = TRUE)
+  )
+
+ggplot(df_summary, aes(x = Age)) +
+  geom_smooth(aes(y = med_sys, color = "Systolic"), se = FALSE) +
+  geom_smooth(aes(y = med_dia, color = "Diastolic"), se = FALSE) +
+  scale_color_manual(
+    values = c("Systolic" = "orange",
+               "Diastolic" = "purple")
+  ) +
+  labs(
+    y = "Median Blood Pressure", 
+    x = "Age", 
+    title = "Median Blood Pressure By Age", 
+    color = "Type"
+  ) +
+  theme_minimal()
+```
+### How is blood pressure related with BMI?
+
+```{r}
+df |> 
+  filter(BMI_WHO != "NA") |>
+  ggplot(aes(x=BMI_WHO, y=BPSysAve)) +
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
+  labs(title = "Systolic Blood Pressure Across BMI Categories",
+       x = "BMI Category",
+       y = "Systolic BP")
+
+df |> 
+  filter(BMI_WHO != "NA") |>
+  ggplot(aes(x=BMI_WHO, y=BPDiaAve)) +
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
+  labs(title = "Systolic Blood Pressure Across BMI Categories",
+       x = "BMI Category",
+       y = "Diastolic BP")
 ```
 2. Create 6-10 figures from the data exploring your questions.
   
@@ -150,8 +178,6 @@ The precise rubric will be published via ELMS. You will be graded on:
 ## Group Structure 
 
 The following applies to a standard 3-person group. I will make suitable adjustment for the non-standard group. 
-
-
 
 | Role | Responsibilities |
 |------|----------------|
