@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ## Overview
 
 In this project, you will produce an exploratory data analysis (EDA) report for the `NHANES::NHANESraw` dataset. **Warning:** You are not allowed to use the `NHANES::NHANES` dataset. 
@@ -24,10 +23,9 @@ NHANESraw
 
 ## Instruction
 
-
 1. Define a set of questions/tasks that will guide your exploration. 
 
-1. Is there an age of peak perceived health? 
+# Question 1: Is there an age of peak perceived health? 
 ```{r}
 df <- NHANESraw
 
@@ -48,7 +46,6 @@ df |>
   )
 ```
 
-
 ```{r}
 df |>
   filter(!is.na(HealthGen)) |>
@@ -68,7 +65,7 @@ df |>
   theme_minimal()
 ```
 
-2. How does pregnancy affect sleep?
+# Question 2: How does pregnancy affect sleep?
 i) If a person is pregnant now, how is their sleep different from those who are 
 not pregnant now?
 ```{r}
@@ -104,7 +101,8 @@ df |>
   theme_minimal()
 
 ```
-### How is blood pressure associated with age?
+
+# Question 3: How is blood pressure associated with age?
 ```{r}
 df_summary <- df |>
   group_by(Age) |>
@@ -128,8 +126,7 @@ ggplot(df_summary, aes(x = Age)) +
   ) +
   theme_minimal()
 ```
-### How is blood pressure related with BMI?
-
+# Question 4: How is blood pressure related with BMI?
 ```{r}
 df |> 
   filter(BMI_WHO != "NA") |>
@@ -149,6 +146,44 @@ df |>
        x = "BMI Category",
        y = "Diastolic BP")
 ```
+# Question 5: Do people with high incomes typically have better mental health?
+```{r}
+df <- NHANESraw |>
+  select(Age, HHIncome, DaysMentHlthBad, Depressed) |>
+  filter(Age >= 18) |>
+  filter(!is.na(HHIncome)) |>
+  filter(!is.na(DaysMentHlthBad)) |>
+  filter(!is.na(Depressed))
+
+summary_df <- df |>
+  group_by(HHIncome) |>
+  summarise(avg_bad_days = mean(DaysMentHlthBad))
+```
+
+```{r}
+ggplot(summary_df, aes(x = HHIncome, y = avg_bad_days, fill = avg_bad_days)) +
+  geom_col() +
+  scale_fill_gradient(low = "tomato", high = "steelblue",
+                      name = "Avg. Bad Days") +
+  labs(
+    title   = "Mental Health by Household Income",
+    x       = "Household Income",
+    y       = "Avg. Bad Mental Health Days (per month)",
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot(df, aes(x = HHIncome, y = DaysMentHlthBad)) +
+  geom_boxplot(fill = "lightblue", color = "steelblue") +
+  labs(
+    title    = "Spread of Bad Mental Health Days by Income",
+    x        = "Household Income",
+    y        = "Bad Mental Health Days (per month)",
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
 2. Create 6-10 figures from the data exploring your questions.
   
     - at least one figure must be faceted using `facet_`
@@ -163,7 +198,6 @@ df |>
 - A `zip` file consisting of one `RMD` and one `HTML` files. The name of your `zip` file should be a two-digit number corresponding to your group. 
 - The knitted output of the `RMD` file must be identical to the `HTML` file.
 - The `HTML` file should only consist of words and plots, i.e., no code. To do this, you can set `echo = F` in the global options.  
-
 
 ## Grading structure
 
@@ -191,7 +225,6 @@ The following applies to a standard 3-person group. I will make suitable adjustm
 
 > **Note:** Roles have some degree of flexiblility; members can overlap responsibilities. Every member must contribute technically, write text, and support quality control.
 
-
 ## Post-production
 
 Each member is required to submit a report including an individual reflection and a group member evaluation. Both will be available only to the instructor/grader. Each report must include the following key information:
@@ -199,8 +232,3 @@ Each member is required to submit a report including an individual reflection an
 - Your roles and your plots (1 paragraph)
 - Summary of your work (1 paragraph)
 - Evaluation of each of your team member's work, i.e., what aspects are done well and what could be improved for each member. (1 paragraph for each member)
-
-
-
-
-
