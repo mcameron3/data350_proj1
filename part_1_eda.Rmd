@@ -191,6 +191,7 @@ df <- NHANESraw
 df <- df |> filter(!(is.na(SleepTrouble)) & !(is.na(Depressed)))
 ggplot(df, aes(x = HHIncomeMid)) + geom_density(aes(fill = SleepTrouble), position = "identity", alpha = 0.5)+ facet_wrap(~Depressed) + labs(title = "Sleep Trouble Based on Number of Days Depressed and Household Income", x = "Household Income",y = "Density" )+ theme(panel.spacing = unit(16, "pt"))
 ```
+To understand the question of which factors influence sleep quality, the best measure within the dataset would have to be Sleep Trouble. Knowing this, it made sense to compare it against two factors which we predicted to have some influence: depression and household income. Our hypothesis was that a higher household income would lead to a higher sleep quality and less sleep trouble, while increased amount of days depressed would increase sleep trouble. By measuring the frequency of these, we hoped to be able to identify some trends between the different factors. After plotting, however, it seems that sleep trouble does not really change based on household income, as the densities remain very similar. However, we can notice a trend between lower income and higher depression, which actually related to our 5th question. Overall though, we were unable to find any discernible trend when it comes to sleep quality.
 
 
 2. Create 6-10 figures from the data exploring your questions.
