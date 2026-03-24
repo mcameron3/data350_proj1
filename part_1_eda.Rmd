@@ -134,23 +134,16 @@ df |>
 ```
 # Question 5: Do people with high incomes typically have better mental health?
 ```{r}
-df |> 
-  filter(BMI_WHO != "NA") |>
-  ggplot(aes(x=BMI_WHO, y=BPSysAve)) +
-  geom_violin(fill = "lightblue") +
-  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
-  labs(title = "Systolic Blood Pressure Across BMI Categories",
-       x = "BMI Category",
-       y = "Systolic BP")
+df <- NHANESraw |>
+  select(Age, HHIncome, DaysMentHlthBad, Depressed) |>
+  filter(Age >= 18) |>
+  filter(!is.na(HHIncome)) |>
+  filter(!is.na(DaysMentHlthBad)) |>
+  filter(!is.na(Depressed))
 
-df |> 
-  filter(BMI_WHO != "NA") |>
-  ggplot(aes(x=BMI_WHO, y=BPDiaAve)) +
-  geom_violin(fill = "lightblue") +
-  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
-  labs(title = "Diastolic Blood Pressure Across BMI Categories",
-       x = "BMI Category",
-       y = "Diastolic BP")
+summary_df <- df |>
+  group_by(HHIncome) |>
+  summarise(avg_bad_days = mean(DaysMentHlthBad))
 ```
 
 ```{r}
