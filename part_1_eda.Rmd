@@ -25,11 +25,11 @@ NHANESraw
 
 1. Define a set of questions/tasks that will guide your exploration. 
 
-# Question 1: Is there an age of peak perceived health? 
-```{r}
-df <- NHANESraw
+# Question 1: Is there an age of peak perceived health?
 A facet grid mapping age by decade and gender with level of self-reported general health
 explores this question.
+```{r}
+df <- NHANESraw
 # make AgeDecade var
 df <- df |>
   mutate(AgeDecade = floor(Age / 10) * 10)
