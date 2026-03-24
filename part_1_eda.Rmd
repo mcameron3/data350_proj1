@@ -28,62 +28,36 @@ NHANESraw
 # Question 1: Is there an age of peak perceived health? 
 ```{r}
 df <- NHANESraw
-
+A facet grid mapping age by decade and gender with level of self-reported general health
+explores this question.
 # make AgeDecade var
 df <- df |>
   mutate(AgeDecade = floor(Age / 10) * 10)
-
 df |>
   select(HealthGen, Gender, AgeDecade) |>
   filter(AgeDecade > 0, !is.na(HealthGen)) |>
   ggplot(aes(x = HealthGen, y = after_stat(prop), group = 1)) + 
   geom_bar() +
-  facet_grid(AgeDecade ~ Gender) + 
+  facet_grid(AgeDecade ~ Gender, scales = "free_y") + 
+  coord_flip() +
   labs(
-    x="Proportion of Population", 
-    y="Self-Reported General Health", 
-    title="Proportion of Self-Reported Physical Health by Age Decade and Gender"
-  )
-```
-
-```{r}
-df |>
-  filter(!is.na(HealthGen)) |>
-  group_by(Age) |>
-  summarise(
-    prop_good = mean(HealthGen %in% c("Good", "Vgood", "Excellent"))
-  ) |>
-  ggplot(aes(x = Age, y = prop_good)) +
-  geom_line(color = "blue", linewidth = 1) +
-  scale_y_continuous(limits = c(0, 1)) +
-  #scale_x_log10() +
-  labs(
-    x = "Age (years)",
-    y = "Proportion with Good/Vgood/Excellent Health",
-    title = "Proportion of People Reporting Good, Very Good, or Excellent Health by Age"
+    x = "Self-Reported General Health", 
+    y = "Proportion of Population", 
+    title = "Proportion of Self-Reported Physical Health by Age Decade and Gender"
   ) +
-  theme_minimal()
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal(base_size = 14)
 ```
+The trend in the figure above suggests that as age increases, the proportion of people
+who report good, very good, or excellent health slightly decreases in both males and females.
+The proportion of women reporting poor health is always higher than that of men 
+at any decade. Less than 5% of men in their 80's report poor physical health while 
+the percent of women is above 5%. 
 
-# Question 2: How does pregnancy affect sleep?
-i) If a person is pregnant now, how is their sleep different from those who are 
-not pregnant now?
-```{r}
-df <- NHANESraw
 
-df |> 
-  select(PregnantNow, SleepHrsNight, Gender) |> 
-  filter(PregnantNow %in% c("Yes", "No"), Gender == "female") |> 
-  ggplot(aes(x=PregnantNow)) + 
-  geom_violin(aes(y=SleepHrsNight)) + 
-  labs(
-    x="Pregnant", 
-    y="Reported Sleep Per Night (Hours)", 
-    title="Sleep Quality in Pregnant and Non Pregnant People"
-  ) + 
-  theme_minimal()
-```
-ii) Are a larger amount of pregnancies total associated with worse sleep? 
+# Question 2: Are a larger amount of pregnancies total associated with worse sleep? 
+To investigate whether a larger amount of pregnancies has an association with worse perceived sleep, 
+a scatter plot of average sleep quality vs. number of pregnancies was made. 
 ```{r}
 df |> 
   select(nPregnancies, Gender, SleepHrsNight,SleepTrouble) |> 
@@ -101,7 +75,14 @@ df |>
   theme_minimal()
 
 ```
-
+As the number of pregnancies increases, the trendline shows a relatively small increase 
+for people who report no sleep trouble, and no trend for those who do not. However, 
+some of this increase in those without sleep trouble could be attributed to a small 
+sample of women who have had greater than 10 pregnancies. 
+This graph also reveals that the average level of sleep among women who have had a pregnancy
+is one approximately one hour higher on average for those who do not report sleep trouble 
+than those who do. It could be interesting to investigate this trend further on a
+population level. 
 # Question 3: How is blood pressure associated with age?
 ```{r}
 df_summary <- df |>
@@ -126,6 +107,11 @@ ggplot(df_summary, aes(x = Age)) +
   ) +
   theme_minimal()
 ```
+Systolic blood pressure increases with age with a near linear trend, while
+diastolic peaks around age 50 and falls back in a quadratic pattern. The average 
+systolic pressure has a larger positive slope after age 40 than before, so it rises
+more rapidly. 
+
 # Question 4: How is blood pressure related with BMI?
 ```{r}
 df |> 
@@ -148,16 +134,23 @@ df |>
 ```
 # Question 5: Do people with high incomes typically have better mental health?
 ```{r}
-df <- NHANESraw |>
-  select(Age, HHIncome, DaysMentHlthBad, Depressed) |>
-  filter(Age >= 18) |>
-  filter(!is.na(HHIncome)) |>
-  filter(!is.na(DaysMentHlthBad)) |>
-  filter(!is.na(Depressed))
+df |> 
+  filter(BMI_WHO != "NA") |>
+  ggplot(aes(x=BMI_WHO, y=BPSysAve)) +
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
+  labs(title = "Systolic Blood Pressure Across BMI Categories",
+       x = "BMI Category",
+       y = "Systolic BP")
 
-summary_df <- df |>
-  group_by(HHIncome) |>
-  summarise(avg_bad_days = mean(DaysMentHlthBad))
+df |> 
+  filter(BMI_WHO != "NA") |>
+  ggplot(aes(x=BMI_WHO, y=BPDiaAve)) +
+  geom_violin(fill = "lightblue") +
+  geom_boxplot(width = 0.1, outlier.alpha = 0.2) +
+  labs(title = "Diastolic Blood Pressure Across BMI Categories",
+       x = "BMI Category",
+       y = "Diastolic BP")
 ```
 
 ```{r}
