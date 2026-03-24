@@ -1,6 +1,6 @@
 ---
 title: "Project 1"
-author: "Project 1 Group -- Michelle, Valentina, Ian"
+author: "Project 1 Group 1 -- Michelle, Valentina, Ian"
 date: "Due date: March 23 2025 at midnight (EST)"
 output: html_document
 ---
@@ -13,7 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this project, you will produce an exploratory data analysis (EDA) report for the `NHANES::NHANESraw` dataset. **Warning:** You are not allowed to use the `NHANES::NHANES` dataset. 
 
-```{r}
+```{r, echo=FALSE}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 install.packages("NHANES")
 library(NHANES)
 library(ggplot2)
@@ -28,7 +29,7 @@ NHANESraw
 # Question 1: Is there an age of peak perceived health?
 A facet grid mapping age by decade and gender with level of self-reported general health
 explores this question.
-```{r}
+```{r, echo=FALSE}
 df <- NHANESraw
 # make AgeDecade var
 df <- df |>
@@ -57,7 +58,7 @@ the percent of women is above 5%.
 # Question 2: Are a larger amount of pregnancies total associated with worse sleep? 
 To investigate whether a larger amount of pregnancies has an association with worse perceived sleep, 
 a scatter plot of average sleep quality vs. number of pregnancies was made. 
-```{r}
+```{r, echo=FALSE}
 df |> 
   select(nPregnancies, Gender, SleepHrsNight,SleepTrouble) |> 
   filter(Gender == "female", nPregnancies <= 20) |> 
@@ -72,7 +73,6 @@ df |>
     color="Sleep Trouble Reported"
   ) + 
   theme_minimal()
-
 ```
 As the number of pregnancies increases, the trendline shows a relatively small increase 
 for people who report no sleep trouble, and no trend for those who do not. However, 
@@ -84,7 +84,7 @@ than those who do. It could be interesting to investigate this trend further on 
 population level. 
 
 # Question 3: How is blood pressure associated with age?
-```{r}
+```{r, echo=FALSE}
 df_summary <- df |>
   group_by(Age) |>
   summarise(
@@ -113,7 +113,7 @@ systolic pressure has a larger positive slope after age 40 than before, so it ri
 more rapidly. 
 
 # Question 4: How is blood pressure related with BMI?
-```{r}
+```{r, echo=FALSE}
 df |> 
   filter(BMI_WHO != "NA") |>
   ggplot(aes(x=BMI_WHO, y=BPSysAve)) +
@@ -126,7 +126,7 @@ df |>
 We wanted to explore the relationship between BMI and blood pressure, so we created a violin plot in order to visualize how systolic blood pressure changes for each BMI range. From this graph, we can see that as BMI increases, the distribution of systolic blood pressures also slightly increases. For a BMI range of 12.0 - 18.5, we can see that the majority of people have a systolic blood pressure around 100. However, for a BMI range of 18.5 - 24.9, we can see that the majority of people have a systolic blood pressure around 110. Additionally, for a BMI range of 25.0 to 29.9 or 30.0+, we can see that the majority of people have a systolic blood pressure around 120. 
 
 # Question 5: Do people with higher incomes typically have better mental health?
-```{r}
+```{r, echo=FALSE}
 df <- NHANESraw |>
   select(Age, HHIncome, DaysMentHlthBad, Depressed) |>
   filter(Age >= 18) |>
@@ -139,7 +139,7 @@ summary_df <- df |>
   summarise(avg_bad_days = mean(DaysMentHlthBad))
 ```
 
-```{r}
+```{r, echo=FALSE}
 ggplot(summary_df, aes(x = HHIncome, y = avg_bad_days, fill = avg_bad_days)) +
   geom_col() +
   scale_fill_gradient(low = "steelblue", high = "tomato",
@@ -153,7 +153,7 @@ ggplot(summary_df, aes(x = HHIncome, y = avg_bad_days, fill = avg_bad_days)) +
 ```
 They say money can't buy happiness, but is this true? The guiding question for this graph was "Do people with higher incomes typically have better mental health"? The way that we decided to explore this problem is first by selecting a subset of our data only containing the columns Age >= 18, HHIncome, DaysMentalHlthBad, and Depressed. We then grouped the items based on HHIncome, and created a new column representing the average number of bad days each group experiences. We then graphed this data using a bar chart, with the x-axis being HHIncome, the y-axis being average number of bad days, and we also color-coded the columns based on how good or bad they are (with blue indicating less and red indicating more). From this, we can tell that as income increases, the average number of bad days tends to decrease, except for the 5000-9999 range, which has the second highest number of bad days.
 
-```{r}
+```{r, echo=FALSE}
 ggplot(df, aes(x = HHIncome, y = DaysMentHlthBad)) +
   geom_boxplot(fill = "lightblue", color = "steelblue") +
   labs(
@@ -166,7 +166,7 @@ ggplot(df, aes(x = HHIncome, y = DaysMentHlthBad)) +
 To further explore the data, we then created a boxplot with the same x-axis and y-axis as the above bar chart. This chart shows us that regardless of household income, the maximum number of bad mental health days per month for each income group is the same. Additionally, we can see that the median for almost all income groups is either 0-3 days. We can also see how the upper quartile for number of bad mental health days per month is higher with the 0-4999 and 5000-9999 groups, which is reflected in the previous chart. However, the previous chart seemed to have shown a strong negative correlation between household income and number of bad mental health days per month, but this boxplot shows that the difference in the medians and upper quartiles are fairly small, and there are still many outliers in the upper levels for bad mental health days regardless of household income. 
 
 # Question 6: What are the factors which might influence sleep quality? 
-```{r}
+```{r, echo=FALSE}
 df <- NHANESraw 
 df <- df |> filter(!(is.na(SleepTrouble)) & !(is.na(Depressed)))
 ggplot(df, aes(x = HHIncomeMid)) + geom_density(aes(fill = SleepTrouble), position = "identity", alpha = 0.5)+ facet_wrap(~Depressed) + labs(title = "Sleep Trouble Based on Number of Days Depressed and Household Income", x = "Household Income", y = "Density") + theme(panel.spacing = unit(16, "pt"))
