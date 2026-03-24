@@ -184,6 +184,15 @@ ggplot(df, aes(x = HHIncome, y = DaysMentHlthBad)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+
+Question #6: What are the factors which might influence sleep quality? 
+```{r}
+df <- NHANESraw 
+df <- df |> filter(!(is.na(SleepTrouble)) & !(is.na(Depressed)))
+ggplot(df, aes(x = HHIncomeMid)) + geom_density(aes(fill = SleepTrouble), position = "identity", alpha = 0.5)+ facet_wrap(~Depressed) + labs(title = "Sleep Trouble Based on Number of Days Depressed and Household Income", x = "Household Income",y = "Density" )+ theme(panel.spacing = unit(16, "pt"))
+```
+
+
 2. Create 6-10 figures from the data exploring your questions.
   
     - at least one figure must be faceted using `facet_`
